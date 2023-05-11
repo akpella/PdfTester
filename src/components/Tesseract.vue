@@ -1,12 +1,7 @@
 <template>
-    <div class=" h-screen relative">
-        <div class="absolute h-full w-full flex justify-center items-center">
-            <div class="absolute bg-green-200 h-4/5 w-4/5 flex justify-center items-center rounded-lg">
-                <ResultModal/>
-            </div>
-        </div>
-        <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath"/>
-    <div>
+    <div :hidden=isModalOpen>
+        <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath" />
+        <div>
             <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
                 @click="$refs.pdfs.click()">
@@ -17,8 +12,8 @@
                 @click="$refs.template.click()">
                 Upload Template
             </button>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit" type="button" @click="runValidator"
-                :disabled="isLoading || isDisabled">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit" type="button"
+                @click="runValidator" :disabled="isLoading || isDisabled">
                 <div class="flex items-center" v-if="isLoading">
                     <svg class="animate-spin mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 24 24">
@@ -51,15 +46,24 @@
             <input id="expectedValue" v-model="data.expectedValue">
         </div>
     </div>
-    <img :src="imageSample" />
+    <img :src="imageSample" :hidden="!isModalOpen" />
+
+    <Teleport to="#modal">
+        <div class="bg-slate-400 h-screen w-screen" v-if="isModalOpen">
+            <div>
+                <ResultModal />
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
-import ResultModal from './ResultModal.vue';
+import ResultModal from './Result.vue';
 import PdfImage from './PdfImage.vue';
+
 
 onMounted(() => {
     localStorage.clear();
@@ -72,36 +76,51 @@ const jsonData = ref({});
 const page = ref(1);
 const imageSample = ref("");
 const urlPath = ref("")
+const isModalOpen = ref(false);
+const resultSummary = ref([]);
 
 const runValidator = async () => {
     isLoading.value = true;
+    isModalOpen.value = true;
+    
 
     const worker = await createWorker();
 
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
     await worker.setParameters({
-            tessedit_ocr_engine_mode: Tesseract.TESSERACT_ONLY,
-            tessedit_pageseg_mode: Tesseract.SINGLE_WORD
-        })
+        tessedit_ocr_engine_mode: Tesseract.TESSERACT_ONLY,
+        tessedit_pageseg_mode: Tesseract.SINGLE_WORD
+    })
 
     for (let page = 0; page < templatePages.value.length; page++) {
+
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
             const { expectedValue, coordinates } = testCases[testCase];
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
 
-            if (expectedValue.trim() == text.trim()) {
-                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
-            } else {
-                console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
-            }
+            // if (expectedValue.trim() == text.trim()) {
+            //     console.log(`expected value: ${expectedValue} - text ${text} is equal`);
+            // } else {
+            //     console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
+            // }
         }
+
     }
 
+    resultSummary.value.push({
+            pdfName: "pdfA.pdf",
+            page: "1",
+            mark: "Passed"
+        })
+
+
     await worker.terminate();
+    console.log(resultSummary._rawValue);
     isLoading.value = false;
+
 }
 
 const processTemplate = (event) => {
