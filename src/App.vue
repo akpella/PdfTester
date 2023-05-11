@@ -2,12 +2,14 @@
 import MainCrop from './components/MainCrop.vue'
 import Tesseract from './components/Tesseract.vue'
 import Home from './components/Home.vue';
+import PdfImage from './components/PdfImage.vue';
 </script>
 
 <template>
   <!-- <MainCrop />
   <Tesseract /> -->
   <Home />
+  <PdfImage />
 </template>
 
 <style scoped>
