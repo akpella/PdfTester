@@ -46,7 +46,7 @@ import { RouterLink, RouterView } from 'vue-router'
 		</div>
     <div
       v-if="$route.name !== 'Home'"
-      class="bg-white border-t-8 border-blue-100 rounded-md p-8"
+      class="bg-white border-t-8 border-blue-100 rounded-md p-8 mt-4"
     >
       <RouterView/>
     </div>
