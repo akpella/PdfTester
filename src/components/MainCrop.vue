@@ -47,10 +47,10 @@
           <input
             class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="expectedValue" v-model="data.expectedValue">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="expectedValue">Similarity Percentage:</label>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="expectedValue">Confidence level:</label>
           <input
             class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="expectedValue" v-model="data.similarityPercentage">
+            id="expectedValue" v-model="data.confidenceLevel">
         </div>
       </div>
     </div>
@@ -102,7 +102,7 @@ const triggerPrompt = () => {
       coordinates: tempCoordinates.value,
       isRegex: false,
       expectedValue,
-      similarityPercentage: 90,
+      confidenceLevel: 90,
     }
     jsonData.value.pages[page.value - 1].testCase.push(newTestCase);
     tempCoordinates.value = {};

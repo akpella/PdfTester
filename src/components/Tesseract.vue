@@ -81,14 +81,16 @@ const runValidator = async () => {
     for (let page = 0; page < templatePages.value.length; page++) {
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
-            const { expectedValue, coordinates, similarityPercentage } = testCases[testCase];
+            const { expectedValue, coordinates, confidenceLevel } = testCases[testCase];
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
-
-            console.log(`string similarity: ${stringSimilarity(expectedValue.trim(), text.trim()) * 100}%`);
+            
+            const textSimilarityPercentage = expectedValue.trim().length > 3 ? stringSimilarity(expectedValue.trim(), text.trim()) * 100 :
+                                            stringSimilarity(expectedValue.trim(), text.trim(), 1) * 100;
+            console.log(textSimilarityPercentage);
             if (expectedValue.trim() == text.trim()) {
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
-            } else if ( stringSimilarity(expectedValue.trim(), text.trim()) * 100 >= similarityPercentage ) {
+            } else if ( textSimilarityPercentage >= confidenceLevel) {
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else {
                 console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
