@@ -1,4 +1,5 @@
 <template>
+    <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath"/>
     <div>
         <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
@@ -43,25 +44,26 @@
             <input id="expectedValue" v-model="data.expectedValue">
         </div>
     </div>
+    <img :src="imageSample" />
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
+import PdfImage from './PdfImage.vue';
+
+onMounted(() => {
+    localStorage.clear();
+});
 
 const isDisabled = ref(false);
 const isLoading = ref(false);
-const baseUrl = ref(window.location.host);
-const rectangleOption = ref({
-    left: 19,
-    top: 34,
-    width: 222,
-    height: 50,
-});
 const templatePages = ref([]);
 const jsonData = ref({});
 const page = ref(1);
+const imageSample = ref("");
+const urlPath = ref("")
 
 const runValidator = async () => {
     isLoading.value = true;
@@ -70,17 +72,22 @@ const runValidator = async () => {
 
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
+    await worker.setParameters({
+            tessedit_ocr_engine_mode: Tesseract.TESSERACT_ONLY,
+            tessedit_pageseg_mode: Tesseract.SINGLE_WORD
+        })
 
     for (let page = 0; page < templatePages.value.length; page++) {
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
             const { expectedValue, coordinates } = testCases[testCase];
-            const { data: { text } } = await worker.recognize("http://localhost:5173/assets/pdf-images/image1/sample-payslip.png", { rectangle: { ...coordinates } });
+
+            const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
 
             if (expectedValue.trim() == text.trim()) {
-                console.log(`element value: ${expectedValue} - text ${text} is equal`);
+                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else {
-                console.log(`element value: ${expectedValue} - text ${text} is not equal`);
+                console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
             }
         }
     }
@@ -105,6 +112,12 @@ const onReaderLoad = (event) => {
 };
 
 const processPdfs = (event) => {
-  console.log(event.target.files[0]);
+    var path = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
+
+    urlPath.value = path;
+}
+
+const successfulLoaded = () => {
+    imageSample.value = localStorage.getItem('page-0');
 }
 </script>

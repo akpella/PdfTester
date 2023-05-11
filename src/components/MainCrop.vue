@@ -1,4 +1,5 @@
 <template>
+  <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath"/>
   <div class="flex">
     <div class="w-1/2">
       <div>
@@ -50,18 +51,18 @@
       </div>
     </div>
     <div class="w-1/2">
-      <Cropper class="w-[100vw] h-[100vh]" :src="img" @change="processSelection"></Cropper>
+      <Cropper class="w-[100vw] h-[100vh]" :src="imageSample" @change="processSelection"></Cropper>
     </div>
   </div>
 </template>
 
 <script setup>
+import PdfImage from './PdfImage.vue';
 import { ref, onMounted, computed } from 'vue'
 import { Cropper } from 'vue-advanced-cropper'
 import { v4 as uuidv4 } from 'uuid';
 import 'vue-advanced-cropper/dist/style.css';
 
-const img = ref("http://localhost:5173/assets/pdf-images/image1/sample-payslip.png")
 const sel = ref({})
 const option = ref({})
 const jsonName = ref("");
@@ -77,9 +78,16 @@ const jsonData = ref({
     }
   ]
 });
+const isFound = ref(false);
 const page = ref(1);
 const isImageFullyLoaded = ref(false);
 const tempCoordinates = ref({});
+const urlPath = ref("")
+const imageSample = ref("");
+
+onMounted(() => {
+    localStorage.clear();
+});
 
 const triggerPrompt = () => {
   let expectedValue = prompt("Input expected value");
@@ -113,7 +121,10 @@ const processSelection = ({ coordinates, canvas }) => {
 };
 
 const processDocument = (event) => {
-  console.log(URL.createObjectURL(event.target.files[0]));
+  var path = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
+    console.log('path: ', path);
+
+    urlPath.value = path;
 }
 
 const processTemplate = (event) => {
@@ -141,5 +152,12 @@ const triggerSave = () => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+
+const successfulLoaded = () => {
+  console.log('successfulLoaded');
+  imageSample.value = localStorage.getItem("page-0");
+  urlPath.value = "";
 }
 </script>
