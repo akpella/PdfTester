@@ -1,8 +1,11 @@
 <script setup>
+import Result from './components/ResultModal.vue';
+
 </script>
 
 <template>
   <router-view></router-view>
+  <!-- <Result/> -->
 </template>
 
 <style scoped>
