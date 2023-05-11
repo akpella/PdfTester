@@ -84,10 +84,11 @@ const runValidator = async () => {
             const { expectedValue, coordinates, similarityPercentage } = testCases[testCase];
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
+
+            console.log(`string similarity: ${stringSimilarity(expectedValue.trim(), text.trim()) * 100}%`);
             if (expectedValue.trim() == text.trim()) {
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else if ( stringSimilarity(expectedValue.trim(), text.trim()) * 100 >= similarityPercentage ) {
-                console.log(`string similarity: ${stringSimilarity(expectedValue.trim(), text.trim()) * 100}%`)
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else {
                 console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
@@ -116,7 +117,7 @@ const onReaderLoad = (event) => {
 
 const processPdfs = (event) => {
     var path = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
-
+    
     urlPath.value = path;
 }
 

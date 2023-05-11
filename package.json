@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "pdfjs-dist": "^3.6.172",
+    "string-similarity-js": "^2.1.4",
     "tesseract.js": "^4.0.5",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
