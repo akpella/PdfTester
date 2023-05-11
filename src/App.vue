@@ -1,15 +1,8 @@
 <script setup>
-import MainCrop from './components/MainCrop.vue'
-import Tesseract from './components/Tesseract.vue'
-import Home from './components/Home.vue';
-import PdfImage from './components/PdfImage.vue';
 </script>
 
 <template>
-  <!-- <MainCrop />
-  <Tesseract /> -->
-  <Home />
-  <PdfImage />
+  <router-view></router-view>
 </template>
 
 <style scoped>
