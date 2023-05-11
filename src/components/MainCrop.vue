@@ -51,6 +51,13 @@
       </div>
     </div>
     <div class="w-1/2">
+      <VueAwesomePaginate
+        v-model="page"
+        :total-items="totalPages"
+        :items-per-page="1"
+        :max-pages-shown="3"
+        :on-click="onClickHandler">
+      </VueAwesomePaginate>
       <Cropper class="w-[100vw] h-[100vh]" :src="imageSample" @change="processSelection"></Cropper>
     </div>
   </div>
@@ -60,8 +67,10 @@
 import PdfImage from './PdfImage.vue';
 import { ref, onMounted, computed } from 'vue'
 import { Cropper } from 'vue-advanced-cropper'
+import { VueAwesomePaginate } from "vue-awesome-paginate";
 import { v4 as uuidv4 } from 'uuid';
 import 'vue-advanced-cropper/dist/style.css';
+import "vue-awesome-paginate/dist/style.css";
 
 const sel = ref({})
 const option = ref({})
@@ -75,15 +84,21 @@ const jsonData = ref({
     {
       "page": 1,
       "testCase": []
+    },
+    {
+      "page": 2,
+      "testCase": []
     }
   ]
 });
 const isFound = ref(false);
 const page = ref(1);
+const currentPage = ref(1);
 const isImageFullyLoaded = ref(false);
 const tempCoordinates = ref({});
 const urlPath = ref("")
 const imageSample = ref("");
+const totalPages = ref("");
 
 onMounted(() => {
     localStorage.clear();
@@ -157,7 +172,44 @@ const triggerSave = () => {
 
 const successfulLoaded = () => {
   console.log('successfulLoaded');
+  totalPages.value = localStorage.getItem("totalPages");
   imageSample.value = localStorage.getItem("page-0");
   urlPath.value = "";
 }
+
+const onClickHandler = (page) => {
+  var index = page === 0 ? page : page - 1;
+  imageSample.value = localStorage.getItem(`page-${index}`);
+  console.log(page);
+};
 </script>
+
+<style>
+.pagination-container {
+  display: flex;
+  column-gap: 10px;
+}
+
+.paginate-buttons {
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  cursor: pointer;
+  background-color: rgb(242, 242, 242);
+  border: 1px solid rgb(217, 217, 217);
+  color: black;
+}
+
+.paginate-buttons:hover {
+  background-color: #d8d8d8;
+}
+
+.active-page {
+  background-color: #3498db;
+  border: 1px solid #3498db;
+  color: white;
+}
+
+.active-page:hover {
+  background-color: #2988c8;
+}</style>

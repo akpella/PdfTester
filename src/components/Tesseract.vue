@@ -78,6 +78,7 @@ const runValidator = async () => {
         })
 
     for (let page = 0; page < templatePages.value.length; page++) {
+        imageSample.value = localStorage.getItem(`page-${page}`);
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
             const { expectedValue, coordinates } = testCases[testCase];
@@ -118,6 +119,6 @@ const processPdfs = (event) => {
 }
 
 const successfulLoaded = () => {
-    imageSample.value = localStorage.getItem('page-0');
+    imageSample.value = localStorage.getItem("page-0");
 }
 </script>
