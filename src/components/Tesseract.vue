@@ -52,6 +52,7 @@ import { ref, watch, onMounted } from 'vue';
 import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
 import PdfImage from './PdfImage.vue';
+import { stringSimilarity } from "string-similarity-js";
 
 onMounted(() => {
     localStorage.clear();
@@ -80,11 +81,13 @@ const runValidator = async () => {
     for (let page = 0; page < templatePages.value.length; page++) {
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
-            const { expectedValue, coordinates } = testCases[testCase];
+            const { expectedValue, coordinates, similarityPercentage } = testCases[testCase];
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
-
             if (expectedValue.trim() == text.trim()) {
+                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
+            } else if ( stringSimilarity(expectedValue.trim(), text.trim()) * 100 >= similarityPercentage ) {
+                console.log(`string similarity: ${stringSimilarity(expectedValue.trim(), text.trim()) * 100}%`)
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else {
                 console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
