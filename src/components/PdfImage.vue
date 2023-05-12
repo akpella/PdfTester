@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 const props = defineProps({
     url: String
 })
@@ -8,6 +9,11 @@ const emit = defineEmits(['successfulLoaded'])
 const pdfjs = await import('pdfjs-dist/build/pdf');
 const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+const pdfImages = ref([]);
+
+onMounted(() => {
+    pdfImages.value = [];
+});
 
 if (props.url) {
 
@@ -26,7 +32,9 @@ if (props.url) {
         ctx.putImageData(pages[index], 0, 0);
         var dataUrl = canvas.toDataURL();
         // save the base64 images to local storage
-        localStorage.setItem(`page-${index}`, dataUrl);
+        pdfImages.value.push(dataUrl);
+
+        localStorage.setItem('pdfImages', JSON.stringify(pdfImages.value));
 
         // Uncomment if you want to download the pages as PNG
         // const downloadLink = document.createElement("a");
@@ -40,8 +48,6 @@ if (props.url) {
     }
 
     // get the pdf document
-
-    console.log('pdfJs: ', props.url);
     const thisdoc = pdfjs.getDocument({ url: props.url });
 
     thisdoc.promise.then(function (pdf) {
