@@ -1,52 +1,130 @@
 <template>
-    <div :hidden=isModalOpen>
+    <div>
         <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath" />
         <div>
-            <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
-                @click="$refs.pdfs.click()">
-                Upload PDFs
-            </button>
-            <input type="file" ref="template" accept="application/json" style="display: none" @change="processTemplate" />
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
-                @click="$refs.template.click()">
-                Upload Template
-            </button>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit" type="button"
-                @click="runValidator" :disabled="isLoading || isDisabled">
-                <div class="flex items-center" v-if="isLoading">
-                    <svg class="animate-spin mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                    Processing...
+            <div class="flex justify-between">
+                <div class="w-2/5">
+                    <div class="pb-12">
+                        <div class="text-xl pb-4">
+                            <span><strong>Select the PDF for validation</strong></span>
+                        </div>
+                        <div>
+                            <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
+                            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
+                                @click="$refs.pdfs.click()">
+                                Select your PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pb-8">
+                        <div class="text-xl pb-4">
+                            <span><strong>Select template validator</strong></span>
+                        </div>
+                        <div>
+                            <input type="file" ref="template" accept="application/json" style="display: none" @change="processTemplate" />
+                            <button
+                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
+                                @click="$refs.template.click()"
+                            >
+                                Select your JSON
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pb-12" v-if="Object.keys(jsonData).length">
+                        <div class="text-lg pb-3">Template details</div>
+                        <div>Name: {{ jsonData.name }}</div>
+                        <div>Version: {{ jsonData.version }}</div>
+                        <div class="space-y-3">
+                            <div class="pt-2">Test cases:</div>
+                                <div
+                                    v-for="data in jsonData.pages[page - 1].testCase"
+                                    v-bind:key="data.id"
+                                    class="shadow-sm border my-2 p-4 rounded-lg"
+                                >
+                                <div class="flex space-x-4 pb-2">
+                                    <div>
+                                        <span class="block text-gray-700 text-xs">Width</span>
+                                        <p>{{ data.coordinates.width }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="block text-gray-700 text-xs">Height</span>
+                                        <p>{{ data.coordinates.height }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="block text-gray-700 text-xs">Top</span>
+                                        <p>{{ data.coordinates.top }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="block text-gray-700 text-xs">Left</span>
+                                        <p>{{ data.coordinates.width }}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-700 text-xs">Expected value</span>
+                                    <p>{{ data.expectedValue }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="text-xl bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-red-300"
+                        @click="runValidator"
+                        :disabled="isLoading || isDisabled"
+                    >
+                        <div class="flex justify-center" v-if="isLoading">
+                            <div class="flex items-center space-x-2">
+                                <svg class="animate-spin mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <div>Processing...</div>
+                            </div>
+                        </div>
+                        <div v-else>
+                            Validate PDF
+                        </div>
+                    </button>
                 </div>
-                <div v-else>
-                    Run
+                <div class="w-1/2">
+                    <div class="sticky top-8 placeholder border-4 border-dashed border-gray-200 rounded-2xl">
+                        <div v-if="!imageSample"></div>
+                        <img :src="imageSample" />
+                    </div>
                 </div>
-            </button>
+            </div>
+        </div>
+        <div v-if="resultSummary?.length" class="py-16 mt-16 border-t border-gray-300">
+            <div class="text-4xl text-center pb-8">Results</div>
+            <div class="results rounded-xl border border-gray-200">
+                <div
+                    class="bg-gray-100 px-4 py-4 border-b border-gray-200 grid gap-4 grid-cols-3"
+                >
+                    <div>File name</div>
+                    <div>Page</div>
+                    <div>Result</div>
+                </div>
+                <div
+                    class="px-4 py-4 border-b border-gray-200 grid gap-4 grid-cols-3"
+                    v-for="data in resultSummary"
+                >
+                    <div>{{ data.pdfName }}</div>
+                    <div>{{ data.page }}</div>
+                    <div
+                        :class="{
+                            'text-red-700': data.mark === 'Failed',
+                            'text-blue-700': data.mark === 'Passed'
+                        }"
+                    >
+                        {{ data.mark }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div v-if="Object.keys(jsonData).length">
-        <div>
-            <label for="templateName">Name:</label>
-            <input id="templateName" v-model="jsonData.name">
-            <label for="version">Version:</label>
-            <input id="version" v-model="jsonData.version">
-            <label for="version">Page:</label>
-            <input id="pageNumber" v-model="page">
-        </div>
-        <div v-for="data in jsonData.pages[page - 1].testCase" v-bind:key="data.id">
-            <span>Coordinates: width: {{ data.coordinates.width }} | height: {{ data.coordinates.height }} | left: {{
-                data.coordinates.left }} | top: {{ data.coordinates.top }}</span>
-            <label for="expectedValue">Expected Value:</label>
-            <input id="expectedValue" v-model="data.expectedValue">
-        </div>
-    </div>
-    <img :src="imageSample" :hidden="isModalOpen" />
+    
 
     <Teleport to="#modal">
         <div class="bg-slate-400 h-screen w-screen" v-if="isModalOpen">
@@ -58,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
 import ResultModal from './Result.vue';
@@ -161,3 +239,9 @@ const successfulLoaded = () => {
     imageSample.value = JSON.parse(localStorage.getItem('pdfImages'))[0];
 }
 </script>
+
+<style lang="scss" scoped>
+.results > div:last-child {
+    border: none;
+}
+</style>

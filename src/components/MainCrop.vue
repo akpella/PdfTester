@@ -124,7 +124,7 @@
             <p class="text-lg">Confidence Level</p>
           </div>
           <div class="flex space-x-4 pb-4">
-            <textarea
+            <input
               class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
               v-model="confidenceLevel"
             />
@@ -165,7 +165,7 @@
                   <p>{{ data.coordinates.width }}</p>
                 </div>
               </div>
-              <div>
+              <div class="pb-2">
                 <span class="block text-gray-700 text-xs">Expected value</span>
                 <p>{{ data.expectedValue }}</p>
               </div>
@@ -199,7 +199,7 @@
         </div> -->
         <div class="pt-6">
           <button
-            class="text-xl bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-red-300"
+            class="text-xl bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-red-300"
             @click="triggerSave"
           >
             Save template
@@ -207,13 +207,14 @@
         </div>
       </div>
       <div class="w-1/2">
-        <div class="sticky top-8">
-          <div
-            v-if="!imageSample"
-            class="placeholder border-4 border-dashed border-gray-200 rounded-2xl"
-          >
+        <div class="sticky placeholder top-8 border-4 border-dashed border-gray-200 rounded-2xl p-4">
+          <div v-if="!imageSample">
           </div>
-          <Cropper :src="imageSample" @change="processSelection"></Cropper>
+          <Cropper
+            v-else
+            :src="imageSample"
+            @change="processSelection"
+          ></Cropper>
         </div>
       </div>
     </div>
@@ -352,6 +353,6 @@ const successfulLoaded = () => {
 
 <style lang="scss">
 .placeholder {
-  height: 500px;
+  min-height: 500px;
 }
 </style>
