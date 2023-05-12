@@ -159,6 +159,6 @@ const processPdfs = (event) => {
 }
 
 const successfulLoaded = () => {
-    imageSample.value = localStorage.getItem('page-0');
+    imageSample.value = JSON.parse(localStorage.getItem('pdfImages'))[0];
 }
 </script>
