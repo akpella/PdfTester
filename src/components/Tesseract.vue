@@ -104,10 +104,6 @@ const runValidator = async (event) => {
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
 
-            //     console.log(`expected value: ${expectedValue} - text ${text} is equal`);
-            // } else {
-            //     console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
-            // }
             if (expectedValue.trim() == text.trim()) {
                 isPassed = true;
             }

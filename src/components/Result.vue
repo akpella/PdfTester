@@ -49,23 +49,6 @@
 </template>
 
 <script >
-// const resultSumms = [
-//     {
-//         pdfName: "pdfA.pdf",
-//         page: "1",
-//         mark: "Passed"
-//     },
-//     {
-//         pdfName: "pdfB.pdf",
-//         page: "2",
-//         mark: "Passed"
-//     },
-//     {
-//         pdfName: "pdfC.pdf",
-//         page: "3",
-//         mark: "Failed"
-//     }
-// ]
 
 export default{
     props: ['resultSummary']
