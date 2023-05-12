@@ -1,32 +1,34 @@
 <template>
-    <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath"/>
-    <div>
-        <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
-            @click="$refs.pdfs.click()">
-            Upload PDFs
-        </button>
-        <input type="file" ref="template" accept="application/json" style="display: none" @change="processTemplate" />
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
-            @click="$refs.template.click()">
-            Upload Template
-        </button>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit" type="button" @click="runValidator"
-            :disabled="isLoading || isDisabled">
-            <div class="flex items-center" v-if="isLoading">
-                <svg class="animate-spin mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-                Processing...
-            </div>
-            <div v-else>
-                Run
-            </div>
-        </button>
+    <div :hidden=isModalOpen>
+        <PdfImage :url="urlPath" @successfulLoaded="successfulLoaded" v-if="urlPath" />
+        <div>
+            <input type="file" ref="pdfs" accept="application/pdf" multiple style="display: none" @change="processPdfs" />
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
+                @click="$refs.pdfs.click()">
+                Upload PDFs
+            </button>
+            <input type="file" ref="template" accept="application/json" style="display: none" @change="processTemplate" />
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-auto mr-2"
+                @click="$refs.template.click()">
+                Upload Template
+            </button>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit" type="button"
+                @click="runValidator" :disabled="isLoading || isDisabled">
+                <div class="flex items-center" v-if="isLoading">
+                    <svg class="animate-spin mr-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Processing...
+                </div>
+                <div v-else>
+                    Run
+                </div>
+            </button>
+        </div>
     </div>
     <div v-if="Object.keys(jsonData).length">
         <div>
@@ -44,14 +46,24 @@
             <input id="expectedValue" v-model="data.expectedValue">
         </div>
     </div>
-    <img :src="imageSample" />
+    <img :src="imageSample" :hidden="isModalOpen" />
+
+    <Teleport to="#modal">
+        <div class="bg-slate-400 h-screen w-screen" v-if="isModalOpen">
+            <div>
+                <ResultModal :resultSummary="resultSummary" />
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
+import ResultModal from './Result.vue';
 import PdfImage from './PdfImage.vue';
+
 
 onMounted(() => {
     localStorage.clear();
@@ -64,20 +76,28 @@ const jsonData = ref({});
 const page = ref(1);
 const imageSample = ref("");
 const urlPath = ref("")
+const isModalOpen = ref(false);
+const resultSummary = ref([]);
+const fileNames = ref([]);
 
-const runValidator = async () => {
+const runValidator = async (event) => {
     isLoading.value = true;
+    isModalOpen.value = true;
+
 
     const worker = await createWorker();
 
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
     await worker.setParameters({
-            tessedit_ocr_engine_mode: Tesseract.TESSERACT_ONLY,
-            tessedit_pageseg_mode: Tesseract.SINGLE_WORD
-        })
+        tessedit_ocr_engine_mode: Tesseract.TESSERACT_ONLY,
+        tessedit_pageseg_mode: Tesseract.SINGLE_WORD
+    })
+
+    let isPassed = true;
 
     for (let page = 0; page < templatePages.value.length; page++) {
+
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
             const { expectedValue, coordinates } = testCases[testCase];
@@ -85,15 +105,23 @@ const runValidator = async () => {
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
 
             if (expectedValue.trim() == text.trim()) {
-                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
-            } else {
-                console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
+                isPassed = true;
+            }
+            else {
+                isPassed = false;
             }
         }
+        resultSummary.value.push({
+            pdfName: fileNames.value[page],
+            page: page+1,
+            mark: isPassed ? "Passed" : "Failed"
+        })
     }
 
     await worker.terminate();
+    console.log(resultSummary._rawValue);
     isLoading.value = false;
+
 }
 
 const processTemplate = (event) => {
@@ -113,8 +141,13 @@ const onReaderLoad = (event) => {
 
 const processPdfs = (event) => {
     var path = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
-
+    let fileNamesTemp = [];
+    for(let i = 0; i < event.target.files.length; i++){
+        fileNamesTemp.push(event.target.files[i].name)
+    }
+    fileNames.value=fileNamesTemp;
     urlPath.value = path;
+
 }
 
 const successfulLoaded = () => {
