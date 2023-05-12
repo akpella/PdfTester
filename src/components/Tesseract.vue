@@ -46,7 +46,7 @@
             <input id="expectedValue" v-model="data.expectedValue">
         </div>
     </div>
-    <img :src="imageSample" :hidden="!isModalOpen" />
+    <img :src="imageSample" :hidden="isModalOpen" />
 
     <Teleport to="#modal">
         <div class="bg-slate-400 h-screen w-screen" v-if="isModalOpen">
@@ -78,11 +78,12 @@ const imageSample = ref("");
 const urlPath = ref("")
 const isModalOpen = ref(false);
 const resultSummary = ref([]);
+const fileNames = ref([]);
 
-const runValidator = async () => {
+const runValidator = async (event) => {
     isLoading.value = true;
     isModalOpen.value = true;
-    
+
 
     const worker = await createWorker();
 
@@ -93,6 +94,8 @@ const runValidator = async () => {
         tessedit_pageseg_mode: Tesseract.SINGLE_WORD
     })
 
+    let isPassed = true;
+
     for (let page = 0; page < templatePages.value.length; page++) {
 
         const testCases = templatePages.value[page].testCase;
@@ -101,21 +104,23 @@ const runValidator = async () => {
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
 
-            // if (expectedValue.trim() == text.trim()) {
             //     console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             // } else {
             //     console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
             // }
+            if (expectedValue.trim() == text.trim()) {
+                isPassed = true;
+            }
+            else {
+                isPassed = false;
+            }
         }
-
-    }
-
-    resultSummary.value.push({
-            pdfName: "pdfA.pdf",
-            page: "1",
-            mark: "Passed"
+        resultSummary.value.push({
+            pdfName: fileNames.value[page],
+            page: page+1,
+            mark: isPassed ? "Passed" : "Failed"
         })
-
+    }
 
     await worker.terminate();
     console.log(resultSummary._rawValue);
@@ -140,8 +145,13 @@ const onReaderLoad = (event) => {
 
 const processPdfs = (event) => {
     var path = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
-
+    let fileNamesTemp = [];
+    for(let i = 0; i < event.target.files.length; i++){
+        fileNamesTemp.push(event.target.files[i].name)
+    }
+    fileNames.value=fileNamesTemp;
     urlPath.value = path;
+
 }
 
 const successfulLoaded = () => {
