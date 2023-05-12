@@ -120,6 +120,15 @@
               v-model="testCaseValueInput"
             />
           </div>
+          <div class="pb-4">
+            <p class="text-lg">Confidence Level</p>
+          </div>
+          <div class="flex space-x-4 pb-4">
+            <textarea
+              class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+              v-model="confidenceLevel"
+            />
+          </div>
           <div
             @click="addTestCase"
             class="text-blue-500 cursor-pointer font-semibold"
@@ -159,6 +168,10 @@
               <div>
                 <span class="block text-gray-700 text-xs">Expected value</span>
                 <p>{{ data.expectedValue }}</p>
+              </div>
+              <div>
+                <span class="block text-gray-700 text-xs">Confidence Level</span>
+                <p>{{ data.confidenceLevel }}</p>
               </div>
             </div>
           </div>
@@ -236,6 +249,7 @@ const tempCoordinates = ref({});
 const urlPath = ref("")
 const imageSample = ref("");
 const testCaseValueInput = ref("");
+const confidenceLevel = ref(90);
 
 onMounted(() => {
     localStorage.clear();
@@ -254,7 +268,7 @@ const triggerPrompt = () => {
       coordinates: tempCoordinates.value,
       isRegex: false,
       expectedValue,
-      confidenceLevel: 90,
+      confidenceLevel: confidenceLevel.value,
     }
     jsonData.value.pages[page.value - 1].testCase.push(newTestCase);
     tempCoordinates.value = {};
@@ -272,6 +286,7 @@ const addTestCase = () => {
       coordinates: tempCoordinates.value,
       isRegex: false,
       expectedValue,
+      confidenceLevel: confidenceLevel.value
     }
     jsonData.value.pages[page.value - 1].testCase.push(newTestCase);
 
