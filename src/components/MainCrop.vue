@@ -74,6 +74,10 @@
             <input
               class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="expectedValue" v-model="data.expectedValue">
+            <label class="block text-gray-700 text-sm font-bold mb-2 mt-2" for="expectedValue">Confidence Level:</label>
+            <input
+              class="shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="expectedValue" v-model="data.confidenceLevel">
           </div>
         </div>
         <div>
