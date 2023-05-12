@@ -63,6 +63,7 @@ import Tesseract from 'tesseract.js';
 import { createWorker } from 'tesseract.js';
 import ResultModal from './Result.vue';
 import PdfImage from './PdfImage.vue';
+import { stringSimilarity } from "string-similarity-js";
 
 
 onMounted(() => {
@@ -100,15 +101,22 @@ const runValidator = async (event) => {
 
         const testCases = templatePages.value[page].testCase;
         for (let testCase = 0; testCase < testCases.length; testCase++) {
-            const { expectedValue, coordinates } = testCases[testCase];
+            const { expectedValue, coordinates, confidenceLevel } = testCases[testCase];
 
             const { data: { text } } = await worker.recognize(imageSample.value, { rectangle: { ...coordinates } });
-
+            
+            const textSimilarityPercentage = expectedValue.trim().length > 3 ? stringSimilarity(expectedValue.trim(), text.trim()) * 100 :
+                                            stringSimilarity(expectedValue.trim(), text.trim(), 1) * 100;
+            console.log(textSimilarityPercentage);
             if (expectedValue.trim() == text.trim()) {
                 isPassed = true;
-            }
-            else {
+                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
+            } else if ( textSimilarityPercentage >= confidenceLevel) {
+                isPassed = true;
+                console.log(`expected value: ${expectedValue} - text ${text} is equal`);
+            } else {
                 isPassed = false;
+                console.log(`expected value: ${expectedValue} - text ${text} is not equal`);
             }
         }
         resultSummary.value.push({
