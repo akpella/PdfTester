@@ -5,6 +5,8 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <div class="container pb-24">
     <LottieAnimation class="rocket-lottie"/>
+    <LottieAnimationFooterVue class="rocket-lottie-footer"/>
+
     <div class="nav-container py-8 flex justify-between z-10 relative">
       <div class="title text-2xl font-semibold">PDF Order 66</div>
       <nav class="nav-items flex items-center space-x-8 text-lg">
@@ -13,7 +15,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="nav-item hover:text-blue-500"><RouterLink to="/test">Validate my PDF</RouterLink></div>
       </nav>
     </div>
-    <div class="flex items-center flex-col pt-8 pb-4">
+    <div class="flex items-center flex-col pt-8 pb-4 relative z-10">
 			<div class="text-center mb-6">
 				<div class="font-semibold text-xl pb-2 text-blue-600">Create. Upload. Validate.</div>
 				<div class="text-5xl font-semibold">What would you like to do?</div>
@@ -33,7 +35,7 @@ import { RouterLink, RouterView } from 'vue-router'
 				</div>
 				<div
 					@click="$router.push({ name: 'Tesseract' })"
-					class="action max-h-8 cursor-pointer px-3 py-1 text-blue-600 hover:bg-blue-100 flex space-x-1"
+					class="action max-h-8 cursor-pointer px-3 py-1 text-blue-600 hover:bg-blue-100 flex space-x-1 relative z-10"
 				>
 					<div>
 						<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -55,12 +57,14 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <script>
 import LottieAnimation from './components/LottieAnimation.vue';
+import LottieAnimationFooterVue from './components/LottieAnimationFooter.vue';
 
 export default {
   name: 'App',
   components: {
     LottieAnimation,
-  },
+    LottieAnimation
+},
 };
 </script>
 
@@ -88,9 +92,16 @@ export default {
   transition: 0.4s;
 }
 .rocket-lottie {
-  position: absolute;
+  position: fixed;
   right: -200px;
   width: 800px;
   top: 20px;
+}
+
+.rocket-lottie-footer {
+  position: fixed;
+  right: 1120px;
+  width: 800px;
+  bottom: -300px;
 }
 </style>
