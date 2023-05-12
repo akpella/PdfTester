@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen w-screen flex items-center justify-center">
+    <div class="h-screen w-screen flex items-center justify-center text-black">
         <div class=" w-5/6 h-5/6 rounded-xl">
             <div class="grid grid-cols-4 grid-rows-7 h-full gap-3">
                 <section class="bg-slate-300 col-span-4 flex items-center justify-center text-3xl font-bold">
@@ -15,10 +15,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="resultSumm in resultSumms" :key="resultSumm.id">
-                                <td>{{ resultSumm.pdfName }}</td>
-                                <td>{{ resultSumm.page }}</td>
-                                <td>{{ resultSumm.mark }}</td>
+                            <tr v-for="result in resultSummary" :key="resultSummary.id">
+                                <td>{{ result.pdfName }}</td>
+                                <td>{{ result.page }}</td>
+                                <td>{{ result.mark }}</td>
                             </tr>
                         </tbody>
 
@@ -28,7 +28,7 @@
                     <div class="h-1/6 w-full">Passed</div>
                     <div class="h-5/6 w-full flex items-center justify-center">
                         {{
-                            resultSumms.filter(result => result.mark
+                            resultSummary.filter(result => result.mark
                                 === "Passed").length
                         }}
                     </div>
@@ -37,7 +37,7 @@
                     <div class="h-1/6 w-full">Failed</div>
                     <div class="h-5/6 w-full flex items-center justify-center">
                         {{
-                            resultSumms.filter(result => result.mark
+                            resultSummary.filter(result => result.mark
                                 === "Failed").length
                         }}
                     </div>
@@ -48,22 +48,26 @@
     </div>
 </template>
 
-<script setup>
-const resultSumms = [
-    {
-        pdfName: "pdfA.pdf",
-        page: "1",
-        mark: "Passed"
-    },
-    {
-        pdfName: "pdfB.pdf",
-        page: "2",
-        mark: "Passed"
-    },
-    {
-        pdfName: "pdfC.pdf",
-        page: "3",
-        mark: "Failed"
-    }
-]
+<script >
+// const resultSumms = [
+//     {
+//         pdfName: "pdfA.pdf",
+//         page: "1",
+//         mark: "Passed"
+//     },
+//     {
+//         pdfName: "pdfB.pdf",
+//         page: "2",
+//         mark: "Passed"
+//     },
+//     {
+//         pdfName: "pdfC.pdf",
+//         page: "3",
+//         mark: "Failed"
+//     }
+// ]
+
+export default{
+    props: ['resultSummary']
+}
 </script>
