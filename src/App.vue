@@ -5,7 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <div class="container pb-24">
     <LottieAnimation class="rocket-lottie"/>
-    <div class="nav-container py-8 flex justify-between">
+    <div class="nav-container py-8 flex justify-between z-10 relative">
       <div class="title text-2xl font-semibold">PDF Order 66</div>
       <nav class="nav-items flex items-center space-x-8 text-lg">
         <div class="nav-item hover:text-blue-500"><RouterLink to="/">Home</RouterLink></div>
@@ -46,7 +46,7 @@ import { RouterLink, RouterView } from 'vue-router'
 		</div>
     <div
       v-if="$route.name !== 'Home'"
-      class="bg-white border-t-8 border-blue-100 rounded-md p-8 mt-4"
+      class="bg-white border-t-8 border-blue-100 rounded-md p-8 mt-4 relative z-10"
     >
       <RouterView/>
     </div>
@@ -89,7 +89,7 @@ export default {
 }
 .rocket-lottie {
   position: absolute;
-  right: -420px;
+  right: -200px;
   width: 800px;
   top: 20px;
 }
