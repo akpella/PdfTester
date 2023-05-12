@@ -13,6 +13,7 @@
     "pdfjs-dist": "^3.6.172",
     "string-similarity-js": "^2.1.4",
     "tesseract.js": "^4.0.5",
+    "usemodal-vue3": "^0.3.7",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
     "vue-advanced-cropper": "^2.8.8",
