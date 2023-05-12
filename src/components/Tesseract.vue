@@ -124,15 +124,6 @@
             </div>
         </div>
     </div>
-    
-
-    <Teleport to="#modal">
-        <div class="bg-slate-400 h-screen w-screen" v-if="isModalOpen">
-            <div>
-                <ResultModal :resultSummary="resultSummary" />
-            </div>
-        </div>
-    </Teleport>
 </template>
 
 <script setup>
