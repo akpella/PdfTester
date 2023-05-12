@@ -9,9 +9,9 @@
                     <table class="w-full text-left">
                         <thead>
                             <tr>
-                                <th>PDF FileName</th>
-                                <th>PDF Page</th>
-                                <th>Result</th>
+                                <th class="font-bold">PDF FileName</th>
+                                <th class="font-bold">PDF Page</th>
+                                <th class="font-bold">Result</th>
                             </tr>
                         </thead>
                         <tbody>
