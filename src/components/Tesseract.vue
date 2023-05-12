@@ -96,10 +96,11 @@ const runValidator = async (event) => {
     })
 
     let isPassed = true;
-
+    
     for (let page = 0; page < templatePages.value.length; page++) {
 
         const testCases = templatePages.value[page].testCase;
+    
         for (let testCase = 0; testCase < testCases.length; testCase++) {
             const { expectedValue, coordinates, confidenceLevel } = testCases[testCase];
 
@@ -109,10 +110,8 @@ const runValidator = async (event) => {
                                             stringSimilarity(expectedValue.trim(), text.trim(), 1) * 100;
             console.log(textSimilarityPercentage);
             if (expectedValue.trim() == text.trim()) {
-                isPassed = true;
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else if ( textSimilarityPercentage >= confidenceLevel) {
-                isPassed = true;
                 console.log(`expected value: ${expectedValue} - text ${text} is equal`);
             } else {
                 isPassed = false;
